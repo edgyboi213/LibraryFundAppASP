@@ -1,0 +1,54 @@
+﻿@model LibraryFundAppASP.Models.Book
+
+@{
+    ViewData["Title"] = "Подробности книги";
+}
+
+<!-- Подключение Tailwind CSS -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Подробности книги</h1>
+
+    <div class="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
+        <div class="space-y-4">
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">@Html.DisplayFor(model => model.Title)</h2>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">
+                    <span class="font-semibold">Жанр:</span> @Html.DisplayFor(model => model.Genre)
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">
+                    <span class="font-semibold">Количество страниц:</span> @Html.DisplayFor(model => model.PageCount)
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">
+                    <span class="font-semibold">Год выпуска:</span> @Html.DisplayFor(model => model.ReleaseYear)
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">
+                    <span class="font-semibold">Автор:</span>
+                    @Html.DisplayFor(model => model.IdAuthorNavigation.Name)
+                    @Html.DisplayFor(model => model.IdAuthorNavigation.Surname)
+                    (@Html.DisplayFor(model => model.IdAuthorNavigation.Country))
+                </p>
+            </div>
+            <div class="flex space-x-4 mt-4">
+                <a asp-action="Edit" asp-route-id="@Model.IdBook" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    Изменить
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.IdBook" class="text-red-600 hover:text-red-800 text-sm font-medium">
+                    Удалить
+                </a>
+                <a asp-action="Index" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                    Назад
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

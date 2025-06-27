@@ -1,0 +1,89 @@
+﻿@model IEnumerable<LibraryFundAppASP.Models.Author>
+@{
+    ViewData["Title"] = "Список авторов";
+}
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<div class="container mx-auto px-4 py-8" x-data="{
+    searchQuery: '',
+    selectedCountry: '',
+    filterAuthors() {
+        // Пустая функция, так как фильтрация происходит на клиенте
+    },
+    isAuthorVisible(surname, name, country) {
+        const searchTerm = this.searchQuery.toLowerCase();
+        const matchesSearch = surname.toLowerCase().includes(searchTerm) ||
+                             name.toLowerCase().includes(searchTerm);
+        const matchesCountry = this.selectedCountry === '' || country === this.selectedCountry;
+        return matchesSearch && matchesCountry;
+    }
+}">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Список авторов</h1>
+
+    <!-- Поиск и фильтр -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 justify-center">
+        <input type="text" id="searchInput" placeholder="Поиск по имени или фамилии..."
+               class="w-full sm:w-1/2 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               x-model="searchQuery">
+        <select id="countryFilter"
+                class="w-full sm:w-1/4 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                x-model="selectedCountry">
+            <option value="">Все страны</option>
+            @foreach (var country in Model.Select(a => a.Country).Distinct().OrderBy(c => c))
+            {
+                <option value="@country">@country</option>
+            }
+        </select>
+        <a asp-action="Create"
+           class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            Добавить нового автора
+        </a>
+    </div>
+
+    <!-- Сетка карточек - 3 в строке -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var item in Model)
+            {
+                <div x-show="isAuthorVisible(
+                    '@(item.Surname ?? string.Empty).Replace(" '", "\\' ")',
+                            '@(item.Name ?? string.Empty).Replace(" '", "\\' ")',
+                            '@(item.Country ?? string.Empty).Replace(" '", "\\' ")')">
+                    <a asp-action="Details" asp-route-id="@item.IdAuthor" class="block">
+                        <div class="card bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-6 border border-gray-200 hover:border-blue-500 h-full">
+                            <div class="flex flex-col space-y-3">
+                                <!-- Имя автора -->
+                                <h2 class="text-xl font-bold text-gray-800 line-clamp-2">
+                                    @Html.DisplayFor(modelItem => item.Surname) @Html.DisplayFor(modelItem => item.Name)
+                                </h2>
+                                <!-- Страна -->
+                                <p class="text-sm text-gray-600">
+                                    <span class="font-semibold">Страна:</span> @Html.DisplayFor(modelItem => item.Country)
+                                </p>
+                                <!-- Кнопки действий -->
+                                <div class="flex space-x-4 mt-4">
+                                    <a asp-action="Edit" asp-route-id="@item.IdAuthor"
+                                       class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                       onclick="event.stopPropagation();">
+                                        Изменить
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.IdAuthor"
+                                       class="text-red-600 hover:text-red-800 text-sm font-medium"
+                                       onclick="event.stopPropagation(); return confirm('Вы уверены, что хотите удалить этого автора?');">
+                                        Удалить
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-gray-600 col-span-full text-center">Авторы не найдены.</p>
+        }
+    </div>
+</div>

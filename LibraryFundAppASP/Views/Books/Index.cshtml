@@ -1,0 +1,100 @@
+﻿@model IEnumerable<LibraryFundAppASP.Models.Book>
+@{
+    ViewData["Title"] = "Список книг";
+}
+<!-- Подключение Tailwind CSS и Alpine.js для интерактивности -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<div class="container mx-auto px-4 py-8" x-data="{
+    searchQuery: '',
+    selectedGenre: '',
+    filterBooks() {
+        // Пустая функция, так как фильтрация происходит на клиенте
+    },
+    isBookVisible(title, genre) {
+        const matchesSearch = title.toLowerCase().includes(this.searchQuery.toLowerCase());
+        const matchesGenre = this.selectedGenre === '' || genre === this.selectedGenre;
+        return matchesSearch && matchesGenre;
+    }
+}">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Список книг</h1>
+
+    <!-- Поиск и фильтр -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 justify-center">
+        <input type="text" id="searchInput" placeholder="Поиск по названию..."
+               class="w-full sm:w-1/2 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+               x-model="searchQuery">
+        <select id="genreFilter"
+                class="w-full sm:w-1/4 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                x-model="selectedGenre">
+            <option value="">Все жанры</option>
+            @foreach (var genre in Model.Select(b => b.Genre).Distinct())
+            {
+                <option value="@genre">@genre</option>
+            }
+        </select>
+        <a asp-action="Create"
+           class="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            Добавить новую книгу
+        </a>
+    </div>
+
+    <!-- Сетка карточек - 3 в строке -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach (var item in Model)
+        {
+            <div x-show="isBookVisible('@item.Title.Replace("'", "\\'")', '@item.Genre.Replace("'", "\\'")')">
+                <a asp-action="Details" asp-route-id="@item.IdBook" class="book-card block">
+                    <div class="card bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 p-4 border border-gray-200 hover:border-blue-500 h-full">
+                        <!-- Содержимое карточки -->
+                        <div class="flex flex-col space-y-2">
+                            <!-- Заголовок книги -->
+                            <h2 class="text-lg font-bold text-gray-800 line-clamp-2">
+                                @Html.DisplayFor(modelItem => item.Title)
+                            </h2>
+                            <!-- Жанр -->
+                            <p class="text-sm text-gray-600">
+                                <span class="font-semibold">Жанр:</span> @Html.DisplayFor(modelItem => item.Genre)
+                            </p>
+                            <!-- Количество страниц -->
+                            <p class="text-sm text-gray-600">
+                                <span class="font-semibold">Количество страниц:</span> @Html.DisplayFor(modelItem => item.PageCount)
+                            </p>
+                            <!-- Год выпуска -->
+                            <p class="text-sm text-gray-600">
+                                <span class="font-semibold">Год:</span> @Html.DisplayFor(modelItem => item.ReleaseYear)
+                            </p>
+                            <!-- Автор -->
+                            <p class="text-sm text-gray-600">
+                                <span class="font-semibold">Автор:</span>
+                                @Html.DisplayFor(modelItem => item.IdAuthorNavigation.Name)
+                                @Html.DisplayFor(modelItem => item.IdAuthorNavigation.Surname)
+                            </p>
+                            <!-- Кнопки действий -->
+                            <div class="flex space-x-2 mt-2">
+                                <a asp-action="Edit" asp-route-id="@item.IdBook"
+                                   class="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                   onclick="event.stopPropagation();">
+                                    Изменить
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.IdBook"
+                                   class="text-red-600 hover:text-red-800 text-sm font-medium"
+                                   onclick="event.stopPropagation(); return confirm('Вы уверены, что хотите удалить эту книгу?');">
+                                    Удалить
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- Пагинация -->
+    <div class="mt-6 flex justify-center space-x-2">
+        <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300" disabled>Назад</button>
+        <span class="px-4 py-2 bg-blue-600 text-white rounded-lg">1</span>
+        <button class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Вперед</button>
+    </div>
+</div>

@@ -1,0 +1,110 @@
+﻿@model LibraryFundAppASP.Models.Book
+
+@{
+    ViewData["Title"] = "Добавить новую книгу";
+}
+
+<!-- Подключение Tailwind CSS -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+<div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Добавить новую книгу</h1>
+
+    <div class="bg-white rounded-lg shadow-md p-6 max-w-2xl mx-auto">
+        <!-- Отображение ошибок -->
+        @if (ViewData["ValidationErrors"] != null)
+        {
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+                <strong>Ошибки валидации:</strong> @ViewData["ValidationErrors"]
+            </div>
+        }
+        @if (ViewData["ErrorMessage"] != null)
+        {
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+                <strong>Ошибка:</strong> @ViewData["ErrorMessage"]
+            </div>
+        }
+
+        <form asp-action="Create" method="post" class="space-y-6">
+            <div class="form-group">
+                <label asp-for="Title" class="block text-sm font-medium text-gray-700">Название</label>
+                <input asp-for="Title" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <span asp-validation-for="Title" class="text-red-600 text-sm"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Genre" class="block text-sm font-medium text-gray-700">Жанр</label>
+                <input asp-for="Genre" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <span asp-validation-for="Genre" class="text-red-600 text-sm"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="PageCount" class="block text-sm font-medium text-gray-700">Количество страниц</label>
+                <input asp-for="PageCount" type="number" min="1" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <span asp-validation-for="PageCount" class="text-red-600 text-sm"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ReleaseYear" class="block text-sm font-medium text-gray-700">Год выпуска</label>
+                <input asp-for="ReleaseYear" type="number" min="0" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <span asp-validation-for="ReleaseYear" class="text-red-600 text-sm"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IdAuthor" class="block text-sm font-medium text-gray-700">Автор</label>
+                @if (ViewBag.Authors != null && ((List<Author>)ViewBag.Authors).Any())
+                {
+                    <select asp-for="IdAuthor" name="IdAuthor" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <option value="">Выберите автора</option>
+                        @foreach (var author in ViewBag.Authors)
+                        {
+                            <option value="@author.IdAuthor">@author.Name @author.Surname (@author.Country)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="IdAuthor" class="text-red-600 text-sm"></span>
+                }
+                else
+                {
+                    <p class="text-red-600 text-sm">Нет доступных авторов. Пожалуйста, добавьте автора.</p>
+                    <select asp-for="IdAuthor" class="mt-1 block w-full p-2 border border-gray-300 rounded-lg" disabled>
+                        <option value="">Нет авторов</option>
+                    </select>
+                }
+            </div>
+
+            <div class="flex space-x-4">
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                @(ViewBag.Authors != null && ((List<Author>)ViewBag.Authors).Any() ? "" : "disabled")>
+                    Сохранить
+                </button>
+                <a asp-action="Index" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                    Назад
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('form').validate({
+                rules: {
+                    IdAuthor: {
+                        required: true,
+                        min: 1
+                    }
+                },
+                messages: {
+                    IdAuthor: {
+                        required: "Пожалуйста, выберите автора",
+                        min: "Пожалуйста, выберите действительного автора"
+                    }
+                }
+            });
+        });
+    </script>
+}
